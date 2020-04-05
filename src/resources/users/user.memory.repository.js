@@ -1,6 +1,73 @@
-const getAll = async () => {
-  // TODO: mock implementation. should be replaced during task development
-  return [];
+const User = require('./user.model');
+const taskRepo = require('../tasks/task.memory.repository');
+
+let users = [];
+
+const checkUser = async userObj => {
+  if (users.length === 0) return false;
+  const { id, login } = userObj;
+  if (id) {
+    return await users.some(el => el.id === id);
+  } else if (login) {
+    return await users.some(el => el.login === login);
+  }
 };
 
-module.exports = { getAll };
+const getAll = async () => {
+  const allUsers = users;
+  return allUsers;
+};
+
+const getUser = async id => {
+  const user = await users.filter(el => el.id === id);
+  return user;
+};
+
+const addUser = async (name, login, pass) => {
+  const newUser = await new User(name, login, pass);
+  users.push(newUser);
+  return newUser;
+};
+
+const updateUser = async data => {
+  users.forEach(el => {
+    if (el.id === data.id) {
+      if (data.name) {
+        el.name = data.name;
+      }
+      if (data.login) {
+        el.login = data.login;
+      }
+      if (data.password) {
+        el.password = data.password;
+      }
+    }
+  });
+  return await getUser(data.id);
+};
+
+const deleteUser = async userId => {
+  if (
+    await checkUser({
+      id: userId
+    })
+  ) {
+    users = users.filter(el => el.id !== userId);
+    await taskRepo.tasks.forEach(el => {
+      if (el.userId === userId) {
+        el.userId = null;
+      }
+    });
+    return 204;
+  }
+  return 404;
+};
+
+module.exports = {
+  getAll,
+  addUser,
+  getUser,
+  checkUser,
+  updateUser,
+  deleteUser
+};
