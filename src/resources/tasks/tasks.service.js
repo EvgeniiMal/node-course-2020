@@ -4,7 +4,7 @@ const checkTask = async obj => await tasksRepo.checkTask(obj);
 
 const updateTask = async data => await tasksRepo.updateTask(data);
 
-const getAll = async () => await tasksRepo.getAll();
+const getAll = async id => await tasksRepo.getAll(id);
 
 const getTask = async id => await tasksRepo.getTask(id);
 

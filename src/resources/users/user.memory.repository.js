@@ -1,5 +1,4 @@
 const User = require('./user.model');
-const taskRepo = require('../tasks/task.memory.repository');
 
 let users = [];
 
@@ -19,7 +18,7 @@ const getAll = async () => {
 };
 
 const getUser = async id => {
-  const user = await users.filter(el => el.id === id);
+  const user = await users.filter(el => el.id === id)[0];
   return user;
 };
 
@@ -30,7 +29,7 @@ const addUser = async (name, login, pass) => {
 };
 
 const updateUser = async data => {
-  users.forEach(el => {
+  await users.forEach(el => {
     if (el.id === data.id) {
       if (data.name) {
         el.name = data.name;
@@ -47,20 +46,8 @@ const updateUser = async data => {
 };
 
 const deleteUser = async userId => {
-  if (
-    await checkUser({
-      id: userId
-    })
-  ) {
-    users = users.filter(el => el.id !== userId);
-    await taskRepo.tasks.forEach(el => {
-      if (el.userId === userId) {
-        el.userId = null;
-      }
-    });
-    return 204;
-  }
-  return 404;
+  users = users.filter(el => el.id !== userId);
+  return 204;
 };
 
 module.exports = {

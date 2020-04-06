@@ -11,8 +11,8 @@ const checkTask = async taskObj => {
   return false;
 };
 
-const getAll = async () => {
-  const allTasks = tasks;
+const getAll = async id => {
+  const allTasks = await tasks.filter(el => el.boardId === id);
   return allTasks;
 };
 
@@ -40,11 +40,20 @@ const updateTask = async data => {
       if (data.title) {
         el.title = data.title;
       }
-      if (data.columns) {
-        el.columns = data.columns;
+      if (data.order) {
+        el.order = data.order;
       }
-      if (data.password) {
-        el.password = data.password;
+      if (data.description) {
+        el.description = data.description;
+      }
+      if (data.userId) {
+        el.userId = data.userId;
+      }
+      if (data.boardId) {
+        el.boardId = data.boardId;
+      }
+      if (data.columnId) {
+        el.columnId = data.columnId;
       }
     }
   });
@@ -63,6 +72,18 @@ const deleteTask = async TaskId => {
   return 404;
 };
 
+const deleteAllBoardTasks = async boardId => {
+  tasks = tasks.filter(el => el.boardId !== boardId);
+};
+
+const nullAllUserTask = async userId => {
+  for (const task of tasks) {
+    if (task.userId === userId) {
+      task.userId = null;
+    }
+  }
+};
+
 module.exports = {
   getAll,
   addTask,
@@ -70,5 +91,7 @@ module.exports = {
   checkTask,
   updateTask,
   deleteTask,
+  deleteAllBoardTasks,
+  nullAllUserTask,
   tasks
 };

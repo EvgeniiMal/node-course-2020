@@ -38,7 +38,11 @@ tasksRouter.route('/:id').put(async (req, res) => {
     const task = await tasksService.updateTask({
       id: req.params.id,
       title: req.body.title,
-      columns: req.body.columns
+      order: req.body.order,
+      description: req.body.description,
+      userId: req.body.userId,
+      boardId: req.params.boardId,
+      columnId: req.body.columnId
     });
     res.json(task);
   } else {

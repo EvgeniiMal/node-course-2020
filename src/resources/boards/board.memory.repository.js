@@ -46,16 +46,9 @@ const updateBoard = async data => {
 };
 
 const deleteBoard = async boardId => {
-  if (
-    await checkBoard({
-      id: boardId
-    })
-  ) {
-    boards = boards.filter(el => el.id !== boardId);
-    taskRepo.tasks = taskRepo.tasks.filter(el => el.boardId === boardId);
-    return 204;
-  }
-  return 404;
+  boards = boards.filter(el => el.id !== boardId);
+  await taskRepo.deleteAllBoardTasks(boardId);
+  return 204;
 };
 
 module.exports = {

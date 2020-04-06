@@ -1,6 +1,7 @@
 const router = require('express').Router();
 const User = require('./user.model');
 const usersService = require('./user.service');
+const taskRepo = require('../tasks/task.memory.repository');
 
 router.route('/').get(async (req, res) => {
   const users = await usersService.getAll();
@@ -8,14 +9,11 @@ router.route('/').get(async (req, res) => {
 });
 
 router.route('/:id').get(async (req, res) => {
-  const userInDB = await usersService.checkUser({
-    id: req.params.id
-  });
-  if (userInDB) {
-    const user = await usersService.getUser(req.params.id);
+  const user = await usersService.getUser(req.params.id);
+  if (user) {
     res.json(User.toResponse(user));
   } else {
-    res.sendStatus(404);
+    res.json({});
   }
 });
 
@@ -47,6 +45,7 @@ router.route('/:id').put(async (req, res) => {
 
 router.route('/:id').delete(async (req, res) => {
   const response = await usersService.deleteUser(req.params.id);
+  await taskRepo.nullAllUserTask(req.params.id);
   res.sendStatus(response);
 });
 
