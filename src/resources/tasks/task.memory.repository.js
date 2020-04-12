@@ -61,15 +61,7 @@ const updateTask = async data => {
 };
 
 const deleteTask = async TaskId => {
-  if (
-    await checkTask({
-      id: TaskId
-    })
-  ) {
-    tasks = tasks.filter(el => el.id !== TaskId);
-    return 204;
-  }
-  return 404;
+  tasks = tasks.filter(el => el.id !== TaskId);
 };
 
 const deleteAllBoardTasks = async boardId => {

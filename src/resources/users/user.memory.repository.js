@@ -47,7 +47,6 @@ const updateUser = async data => {
 
 const deleteUser = async userId => {
   users = users.filter(el => el.id !== userId);
-  return 204;
 };
 
 module.exports = {

@@ -48,7 +48,6 @@ const updateBoard = async data => {
 const deleteBoard = async boardId => {
   boards = boards.filter(el => el.id !== boardId);
   await taskRepo.deleteAllBoardTasks(boardId);
-  return 204;
 };
 
 module.exports = {
