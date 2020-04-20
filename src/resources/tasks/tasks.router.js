@@ -12,11 +12,8 @@ tasksRouter.route('/').get(
 
 tasksRouter.route('/:id').get(
   errorWrapper(async (req, res) => {
-    const taskInDB = await tasksService.checkTask({
-      id: req.params.id
-    });
-    if (taskInDB) {
-      const task = await tasksService.getTask(req.params.id);
+    const task = await tasksService.getTask(req.params.id);
+    if (task) {
       res.json(task);
     } else {
       throw new NotFoundError();
@@ -40,19 +37,8 @@ tasksRouter.route('/').post(
 
 tasksRouter.route('/:id').put(
   errorWrapper(async (req, res) => {
-    const TaskInDB = await tasksService.checkTask({
-      id: req.params.id
-    });
-    if (TaskInDB) {
-      const task = await tasksService.updateTask({
-        id: req.params.id,
-        title: req.body.title,
-        order: req.body.order,
-        description: req.body.description,
-        userId: req.body.userId,
-        boardId: req.params.boardId,
-        columnId: req.body.columnId
-      });
+    const task = await tasksService.updateTask(req.params.id, req.body);
+    if (task) {
       res.json(task);
     } else {
       throw new NotFoundError();
@@ -62,11 +48,8 @@ tasksRouter.route('/:id').put(
 
 tasksRouter.route('/:id').delete(
   errorWrapper(async (req, res) => {
-    const TaskInDB = await tasksService.checkTask({
-      id: req.params.id
-    });
-    if (TaskInDB) {
-      await tasksService.deleteTask(req.params.id);
+    const deleted = await tasksService.deleteTask(req.params.id);
+    if (deleted) {
       res.sendStatus(200);
     } else {
       throw new NotFoundError();

@@ -1,14 +1,12 @@
 const router = require('express').Router();
-const User = require('./user.model');
 const usersService = require('./user.service');
-const taskRepo = require('../tasks/task.memory.repository');
 const errorWrapper = require('../../utils/errorHandlerWrapper');
 const errors = require('../../utils/errors');
 
 router.route('/').get(
   errorWrapper(async (req, res) => {
     const users = await usersService.getAll();
-    res.json(users.map(User.toResponse));
+    res.json(users.map(usersService.toResponse));
   })
 );
 
@@ -16,7 +14,7 @@ router.route('/:id').get(
   errorWrapper(async (req, res) => {
     const user = await usersService.getUser(req.params.id);
     if (user) {
-      res.json(User.toResponse(user));
+      res.json(await usersService.toResponse(user));
     } else {
       throw new errors.NotFoundError();
     }
@@ -25,45 +23,39 @@ router.route('/:id').get(
 
 router.route('/').post(
   errorWrapper(async (req, res) => {
-    const response = await usersService.addUser(
-      req.body.name,
-      req.body.login,
-      req.body.password
-    );
-    res.json(User.toResponse(response));
+    const response = await usersService.addUser({
+      name: req.body.name,
+      login: req.body.login,
+      password: req.body.password
+    });
+    res.json(await usersService.toResponse(response));
   })
 );
 
 router.route('/:id').put(
   errorWrapper(async (req, res) => {
-    const userInDB = await usersService.checkUser({
-      id: req.params.id
+    const user = await usersService.updateUser(req.params.id, {
+      name: req.body.name,
+      login: req.body.login,
+      password: req.body.password
     });
-    if (userInDB) {
-      const user = await usersService.updateUser({
-        id: req.params.id,
-        name: req.body.name,
-        login: req.body.login,
-        password: req.body.password
-      });
-      res.json(User.toResponse(user));
+    if (user) {
+      res.json(await usersService.toResponse(user));
     } else {
       throw new errors.NotFoundError();
     }
   })
 );
 
-router.route('/:id').delete(async (req, res) => {
-  const userInDB = await usersService.checkUser({
-    id: req.params.id
-  });
-  if (userInDB) {
-    await usersService.deleteUser(req.params.id);
-    await taskRepo.nullAllUserTask(req.params.id);
-    res.sendStatus(200);
-  } else {
-    throw new errors.NotFoundError();
-  }
-});
+router.route('/:id').delete(
+  errorWrapper(async (req, res) => {
+    const status = await usersService.deleteUser(req.params.id);
+    if (status) {
+      res.sendStatus(200);
+    } else {
+      throw new errors.NotFoundError();
+    }
+  })
+);
 
 module.exports = router;

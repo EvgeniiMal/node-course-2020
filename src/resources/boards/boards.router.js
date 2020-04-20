@@ -12,12 +12,9 @@ boardsRouter.route('/').get(
 
 boardsRouter.route('/:id').get(
   errorWrapper(async (req, res) => {
-    const boardInDB = await boardsService.checkBoard({
-      id: req.params.id
-    });
-    if (boardInDB) {
-      const board = await boardsService.getBoard(req.params.id);
-      res.json(board);
+    const board = await boardsService.getBoard(req.params.id);
+    if (board) {
+      res.json(await boardsService.toResponse(board));
     } else {
       throw new NotFoundError();
     }
@@ -26,36 +23,32 @@ boardsRouter.route('/:id').get(
 
 boardsRouter.route('/').post(
   errorWrapper(async (req, res) => {
-    const response = await boardsService.addBoard(
-      req.body.title,
-      req.body.columns
-    );
-    res.json(response);
+    const response = await boardsService.addBoard({
+      title: req.body.title,
+      columns: req.body.columns
+    });
+    res.json(await boardsService.toResponse(response));
   })
 );
 
 boardsRouter.route('/:id').put(
   errorWrapper(async (req, res) => {
-    const boardInDB = await boardsService.checkBoard({
-      id: req.params.id
+    const board = await boardsService.updateBoard(req.params.id, {
+      title: req.body.title,
+      columns: req.body.columns
     });
-    if (boardInDB) {
-      const board = await boardsService.updateBoard({
-        id: req.params.id,
-        title: req.body.title,
-        columns: req.body.columns
-      });
-      res.json(board);
-    } else {
-      throw new NotFoundError();
-    }
+    res.json(board);
   })
 );
 
 boardsRouter.route('/:id').delete(
   errorWrapper(async (req, res) => {
-    await boardsService.deleteBoard(req.params.id);
-    res.sendStatus(200);
+    const status = await boardsService.deleteBoard(req.params.id);
+    if (status) {
+      res.sendStatus(200);
+    } else {
+      throw new NotFoundError();
+    }
   })
 );
 

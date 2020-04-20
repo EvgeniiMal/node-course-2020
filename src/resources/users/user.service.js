@@ -1,25 +1,46 @@
-const usersRepo = require('./user.memory.repository');
+const User = require('./user.schema');
+const { nullUserTasks } = require('../tasks/tasks.service');
 
-const checkUser = async obj => await usersRepo.checkUser(obj);
+const updateUser = async (userId, newUserData) => {
+  const user = await User.findByIdAndUpdate(userId, newUserData);
+  return user;
+};
 
-const updateUser = async data => await usersRepo.updateUser(data);
+const getAll = async () => {
+  const q = await User.find({});
+  return q;
+};
 
-const getAll = async () => await usersRepo.getAll();
+const getUser = async id => {
+  const user = await User.findById(id);
+  return user;
+};
 
-const getUser = async id => await usersRepo.getUser(id);
-
-const addUser = async (name, login, password) => {
-  const newUser = await usersRepo.addUser(name, login, password);
+const addUser = async newUserObj => {
+  const newUser = await User.create(newUserObj);
   return newUser;
 };
 
-const deleteUser = async id => await usersRepo.deleteUser(id);
+const deleteUser = async userId => {
+  const q = await User.findByIdAndRemove(userId);
+  await nullUserTasks(userId);
+  return q;
+};
+
+const toResponse = async userObj => {
+  const { id, name, login } = userObj;
+  return {
+    id,
+    name,
+    login
+  };
+};
 
 module.exports = {
   getAll,
   addUser,
   getUser,
-  checkUser,
   updateUser,
-  deleteUser
+  deleteUser,
+  toResponse
 };

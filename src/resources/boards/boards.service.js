@@ -1,25 +1,43 @@
-const boardsRepo = require('./board.memory.repository');
+const Board = require('./board.schema');
+const { deleteBoardTasks } = require('../tasks/tasks.service');
 
-const checkBoard = async obj => await boardsRepo.checkBoard(obj);
-
-const updateBoard = async data => await boardsRepo.updateBoard(data);
-
-const getAll = async () => await boardsRepo.getAll();
-
-const getBoard = async id => await boardsRepo.getBoard(id);
-
-const addBoard = async (title, columns) => {
-  const newBoard = await boardsRepo.addBoard(title, columns);
-  return newBoard;
+const addBoard = async newObj => {
+  const board = await Board.create(newObj);
+  return board;
+};
+const getAll = async () => {
+  const boards = await Board.find({}).exec();
+  return await boards.map(toResponse);
 };
 
-const deleteBoard = async id => await boardsRepo.deleteBoard(id);
+const updateBoard = async (id, obj) => {
+  return Board.updateOne({ _id: id }, obj);
+};
+
+const getBoard = async id => {
+  const board = await Board.findById(id);
+  return board;
+};
+const deleteBoard = async id => {
+  const q = await Board.findByIdAndRemove(id);
+  await deleteBoardTasks(id);
+  return q;
+};
+
+const toResponse = obj => {
+  const { id, title, columns } = obj;
+  return {
+    id,
+    title,
+    columns
+  };
+};
 
 module.exports = {
   getAll,
   addBoard,
   getBoard,
-  checkBoard,
   updateBoard,
-  deleteBoard
+  deleteBoard,
+  toResponse
 };
