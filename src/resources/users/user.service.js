@@ -1,5 +1,6 @@
 const User = require('./user.schema');
 const { nullUserTasks } = require('../tasks/tasks.service');
+const bcrypt = require('bcrypt');
 
 const updateUser = async (userId, newUserData) => {
   const user = await User.findByIdAndUpdate(userId, newUserData);
@@ -17,7 +18,15 @@ const getUser = async id => {
 };
 
 const addUser = async newUserObj => {
-  const newUser = await User.create(newUserObj);
+  const { password } = newUserObj;
+  const saltRounds = 10;
+  const hash = await bcrypt.hash(password, saltRounds);
+  const newUser = await User.create({
+    name: newUserObj.name,
+    login: newUserObj.login,
+    password: hash
+  });
+
   return newUser;
 };
 
