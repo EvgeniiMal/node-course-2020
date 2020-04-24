@@ -9,10 +9,7 @@ authRouter.route('/').post(
       req.body.password
     );
     if (token) {
-      res
-        .set('Authorization', `Bearer ${token}`)
-        .status(200)
-        .json({ token });
+      res.status(200).json({ token });
     } else {
       res.status(403).json('Incorrect login or password');
     }
